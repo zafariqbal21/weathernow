@@ -1,7 +1,7 @@
 {
   "name": "weathernow-standalone",
   "version": "1.0.0",
-  "description": "Standalone Weather Application with React and WeatherAPI.com",
+  "description": "Standalone Weather Application with React and WeatherAPI.com - Developed by ZIQ",
   "type": "module",
   "scripts": {
     "dev": "vite --port 5000 --host 0.0.0.0",
