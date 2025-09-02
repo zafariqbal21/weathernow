@@ -1,9 +1,11 @@
 {
   "functions": {
     "api/*.ts": {
-      "runtime": "@vercel/node@3.0.1"
+      "runtime": "nodejs18.x"
     }
   },
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/api/:path*",
