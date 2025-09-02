@@ -1,12 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { locationSearchSchema } from '../shared/schema';
 
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.VITE_OPENWEATHER_API_KEY || "";
+const WEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.VITE_OPENWEATHER_API_KEY || "";
 
 async function searchLocation(query: string) {
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${OPENWEATHER_API_KEY}`
+      `http://api.weatherapi.com/v1/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
     );
     
     if (!response.ok) {
@@ -17,7 +17,7 @@ async function searchLocation(query: string) {
     return data.map((location: any) => ({
       name: location.name,
       country: location.country,
-      state: location.state,
+      state: location.region,
       lat: location.lat,
       lon: location.lon,
     }));

@@ -3,148 +3,168 @@ import { createServer, type Server } from "http";
 import { weatherDataSchema, locationSearchSchema, coordinatesSchema } from "@shared/schema";
 import { z } from "zod";
 
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.VITE_OPENWEATHER_API_KEY || "";
+const WEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || process.env.VITE_OPENWEATHER_API_KEY || "";
 
-if (!OPENWEATHER_API_KEY) {
-  console.warn("Warning: OpenWeatherMap API key not found. Set OPENWEATHER_API_KEY or VITE_OPENWEATHER_API_KEY environment variable.");
+if (!WEATHER_API_KEY) {
+  console.warn("Warning: WeatherAPI key not found. Set OPENWEATHER_API_KEY environment variable.");
+}
+
+function getWeatherApiIcon(code: number, isDay: number): string {
+  // Map WeatherAPI condition codes to FontAwesome icons
+  const iconMap: Record<number, { day: string, night: string }> = {
+    1000: { day: '01d', night: '01n' }, // Sunny/Clear
+    1003: { day: '02d', night: '02n' }, // Partly cloudy
+    1006: { day: '03d', night: '03n' }, // Cloudy
+    1009: { day: '04d', night: '04n' }, // Overcast
+    1030: { day: '50d', night: '50n' }, // Mist
+    1063: { day: '10d', night: '10n' }, // Patchy rain possible
+    1066: { day: '13d', night: '13n' }, // Patchy snow possible
+    1069: { day: '13d', night: '13n' }, // Patchy sleet possible
+    1072: { day: '09d', night: '09n' }, // Patchy freezing drizzle possible
+    1087: { day: '11d', night: '11n' }, // Thundery outbreaks possible
+    1114: { day: '13d', night: '13n' }, // Blowing snow
+    1117: { day: '13d', night: '13n' }, // Blizzard
+    1135: { day: '50d', night: '50n' }, // Fog
+    1147: { day: '50d', night: '50n' }, // Freezing fog
+    1150: { day: '09d', night: '09n' }, // Patchy light drizzle
+    1153: { day: '09d', night: '09n' }, // Light drizzle
+    1168: { day: '09d', night: '09n' }, // Freezing drizzle
+    1171: { day: '09d', night: '09n' }, // Heavy freezing drizzle
+    1180: { day: '10d', night: '10n' }, // Patchy light rain
+    1183: { day: '10d', night: '10n' }, // Light rain
+    1186: { day: '10d', night: '10n' }, // Moderate rain at times
+    1189: { day: '10d', night: '10n' }, // Moderate rain
+    1192: { day: '09d', night: '09n' }, // Heavy rain at times
+    1195: { day: '09d', night: '09n' }, // Heavy rain
+    1198: { day: '09d', night: '09n' }, // Light freezing rain
+    1201: { day: '09d', night: '09n' }, // Moderate or heavy freezing rain
+    1204: { day: '13d', night: '13n' }, // Light sleet
+    1207: { day: '13d', night: '13n' }, // Moderate or heavy sleet
+    1210: { day: '13d', night: '13n' }, // Patchy light snow
+    1213: { day: '13d', night: '13n' }, // Light snow
+    1216: { day: '13d', night: '13n' }, // Patchy moderate snow
+    1219: { day: '13d', night: '13n' }, // Moderate snow
+    1222: { day: '13d', night: '13n' }, // Patchy heavy snow
+    1225: { day: '13d', night: '13n' }, // Heavy snow
+    1237: { day: '13d', night: '13n' }, // Ice pellets
+    1240: { day: '09d', night: '09n' }, // Light rain shower
+    1243: { day: '09d', night: '09n' }, // Moderate or heavy rain shower
+    1246: { day: '09d', night: '09n' }, // Torrential rain shower
+    1249: { day: '13d', night: '13n' }, // Light sleet showers
+    1252: { day: '13d', night: '13n' }, // Moderate or heavy sleet showers
+    1255: { day: '13d', night: '13n' }, // Light snow showers
+    1258: { day: '13d', night: '13n' }, // Moderate or heavy snow showers
+    1261: { day: '13d', night: '13n' }, // Light showers of ice pellets
+    1264: { day: '13d', night: '13n' }, // Moderate or heavy showers of ice pellets
+    1273: { day: '11d', night: '11n' }, // Patchy light rain with thunder
+    1276: { day: '11d', night: '11n' }, // Moderate or heavy rain with thunder
+    1279: { day: '11d', night: '11n' }, // Patchy light snow with thunder
+    1282: { day: '11d', night: '11n' }, // Moderate or heavy snow with thunder
+  };
+
+  const icons = iconMap[code] || { day: '01d', night: '01n' };
+  return isDay ? icons.day : icons.night;
+}
+
+function getAirQualityText(aqi: number): string {
+  const aqiMap = ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'];
+  return aqiMap[aqi - 1] || 'Unknown';
+}
+
+function formatTime(timeStr: string): string {
+  // Convert "05:30 AM" format to "5:30 AM" format
+  return timeStr.replace(/^0/, '');
 }
 
 async function fetchWeatherData(lat: number, lon: number) {
-  const baseUrl = "https://api.openweathermap.org/data/2.5";
-  const oneCallUrl = "https://api.openweathermap.org/data/3.0/onecall";
+  const baseUrl = "http://api.weatherapi.com/v1";
   
   try {
-    // Fetch current weather and basic forecast
+    // Fetch current weather, forecast, and air quality in one call
     const weatherResponse = await fetch(
-      `${baseUrl}/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
+      `${baseUrl}/forecast.json?key=${WEATHER_API_KEY}&q=${lat},${lon}&days=5&aqi=yes&alerts=no`
     );
     
     if (!weatherResponse.ok) {
       throw new Error(`Weather API error: ${weatherResponse.status}`);
     }
     
-    const weatherData = await weatherResponse.json();
-    
-    // Fetch detailed forecast (One Call API 3.0 requires subscription, fallback to 5-day forecast)
-    const forecastResponse = await fetch(
-      `${baseUrl}/forecast?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
-    );
-    
-    if (!forecastResponse.ok) {
-      throw new Error(`Forecast API error: ${forecastResponse.status}`);
-    }
-    
-    const forecastData = await forecastResponse.json();
-    
-    // Fetch air quality data
-    const airQualityResponse = await fetch(
-      `${baseUrl}/air_pollution?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}`
-    );
-    
-    let airQualityData = null;
-    if (airQualityResponse.ok) {
-      airQualityData = await airQualityResponse.json();
-    }
+    const data = await weatherResponse.json();
     
     // Transform the data to match our schema
-    const current = new Date();
-    const sunrise = new Date(weatherData.sys.sunrise * 1000);
-    const sunset = new Date(weatherData.sys.sunset * 1000);
+    const current = data.current;
+    const location = data.location;
+    const forecast = data.forecast;
     
-    // Process hourly data (next 24 hours from 5-day forecast)
-    const hourlyData = forecastData.list.slice(0, 8).map((item: any) => ({
-      time: new Date(item.dt * 1000).toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        hour12: true 
-      }),
-      temperature: Math.round(item.main.temp),
-      icon: item.weather[0].icon,
-      precipitation: Math.round((item.pop || 0) * 100),
-    }));
+    // Process hourly data (next 24 hours)
+    const today = forecast.forecastday[0];
+    const tomorrow = forecast.forecastday[1] || { hour: [] };
+    const allHours = [...today.hour, ...tomorrow.hour];
+    const currentHour = new Date().getHours();
+    const hourlyData = allHours
+      .slice(currentHour, currentHour + 8)
+      .map((item: any) => ({
+        time: new Date(item.time).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          hour12: true 
+        }),
+        temperature: Math.round(item.temp_c),
+        icon: getWeatherApiIcon(item.condition.code, item.is_day),
+        precipitation: Math.round(item.chance_of_rain || 0),
+      }));
     
     // Process daily data (5 days)
-    const dailyData: any[] = [];
-    const processedDates = new Set();
-    
-    forecastData.list.forEach((item: any) => {
-      const date = new Date(item.dt * 1000);
-      const dateKey = date.toDateString();
+    const dailyData = forecast.forecastday.map((day: any, index: number) => {
+      const dayName = index === 0 ? 'Today' : 
+                     new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' });
       
-      if (!processedDates.has(dateKey) && dailyData.length < 5) {
-        processedDates.add(dateKey);
-        const dayName = dailyData.length === 0 ? 'Today' : 
-                       date.toLocaleDateString('en-US', { weekday: 'short' });
-        
-        dailyData.push({
-          date: dateKey,
-          day: dayName,
-          description: item.weather[0].main,
-          icon: item.weather[0].icon,
-          tempMax: Math.round(item.main.temp_max),
-          tempMin: Math.round(item.main.temp_min),
-          precipitation: Math.round((item.pop || 0) * 100),
-          windDescription: `${Math.round(item.wind.speed)} m/s winds`,
-        });
-      }
+      return {
+        date: day.date,
+        day: dayName,
+        description: day.day.condition.text,
+        icon: getWeatherApiIcon(day.day.condition.code, 1),
+        tempMax: Math.round(day.day.maxtemp_c),
+        tempMin: Math.round(day.day.mintemp_c),
+        precipitation: Math.round(day.day.daily_chance_of_rain || 0),
+        windDescription: `${Math.round(day.day.maxwind_kph)} km/h winds`,
+      };
     });
     
-    // Calculate moon phase (simplified)
-    const moonPhases = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 
-                       'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'];
-    const moonPhase = moonPhases[Math.floor(Math.random() * moonPhases.length)];
-    
     // Get air quality info
-    let airQuality = {
-      aqi: 42,
-      quality: 'Good',
-      pm25: 12,
-      pm10: 18,
-      o3: 65,
+    const airQuality = {
+      aqi: current.air_quality?.['us-epa-index'] || 1,
+      quality: getAirQualityText(current.air_quality?.['us-epa-index'] || 1),
+      pm25: Math.round(current.air_quality?.pm2_5 || 0),
+      pm10: Math.round(current.air_quality?.pm10 || 0),
+      o3: Math.round(current.air_quality?.o3 || 0),
     };
     
-    if (airQualityData && airQualityData.list[0]) {
-      const aqData = airQualityData.list[0];
-      const aqiMap = ['Good', 'Fair', 'Moderate', 'Poor', 'Very Poor'];
-      airQuality = {
-        aqi: aqData.main.aqi,
-        quality: aqiMap[aqData.main.aqi - 1] || 'Unknown',
-        pm25: Math.round(aqData.components.pm2_5 || 0),
-        pm10: Math.round(aqData.components.pm10 || 0),
-        o3: Math.round(aqData.components.o3 || 0),
-      };
-    }
+    // Get astronomy data
+    const astro = today.astro;
     
     const transformedData = {
       location: {
-        name: weatherData.name,
-        country: weatherData.sys.country,
-        lat: weatherData.coord.lat,
-        lon: weatherData.coord.lon,
+        name: location.name,
+        country: location.country,
+        lat: location.lat,
+        lon: location.lon,
       },
       current: {
-        temperature: Math.round(weatherData.main.temp),
-        feelsLike: Math.round(weatherData.main.feels_like),
-        humidity: weatherData.main.humidity,
-        windSpeed: Math.round(weatherData.wind.speed * 3.6), // Convert m/s to km/h
-        uvIndex: 6, // UV index requires separate API call
-        description: weatherData.weather[0].description,
-        icon: weatherData.weather[0].icon,
+        temperature: Math.round(current.temp_c),
+        feelsLike: Math.round(current.feelslike_c),
+        humidity: current.humidity,
+        windSpeed: Math.round(current.wind_kph),
+        uvIndex: Math.round(current.uv || 0),
+        description: current.condition.text,
+        icon: getWeatherApiIcon(current.condition.code, current.is_day),
       },
       hourly: hourlyData,
       daily: dailyData,
       airQuality,
       sunMoon: {
-        sunrise: sunrise.toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit',
-          hour12: true 
-        }),
-        sunset: sunset.toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit',
-          hour12: true 
-        }),
-        moonPhase,
+        sunrise: formatTime(astro.sunrise),
+        sunset: formatTime(astro.sunset),
+        moonPhase: astro.moon_phase,
       },
     };
     
@@ -158,7 +178,7 @@ async function fetchWeatherData(lat: number, lon: number) {
 async function searchLocation(query: string) {
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${OPENWEATHER_API_KEY}`
+      `http://api.weatherapi.com/v1/search.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(query)}`
     );
     
     if (!response.ok) {
@@ -169,7 +189,7 @@ async function searchLocation(query: string) {
     return data.map((location: any) => ({
       name: location.name,
       country: location.country,
-      state: location.state,
+      state: location.region,
       lat: location.lat,
       lon: location.lon,
     }));
