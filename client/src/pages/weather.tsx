@@ -104,7 +104,10 @@ export default function Weather() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <CloudSun className="text-2xl text-primary w-8 h-8" />
-                <h1 className="text-xl font-bold text-foreground">WeatherNow</h1>
+                <div>
+                  <h1 className="text-xl font-bold text-foreground">WeatherNow</h1>
+                  <p className="text-xs text-muted-foreground">Developed by ZIQ</p>
+                </div>
               </div>
               <SearchBar
                 onLocationSelect={handleLocationSelect}
@@ -143,7 +146,10 @@ export default function Weather() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <CloudSun className="text-2xl text-primary w-8 h-8" />
-              <h1 className="text-xl font-bold text-foreground">WeatherNow</h1>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">WeatherNow</h1>
+                <p className="text-xs text-muted-foreground">Developed by ZIQ</p>
+              </div>
             </div>
             <SearchBar
               onLocationSelect={handleLocationSelect}
