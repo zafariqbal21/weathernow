@@ -1,0 +1,104 @@
+index-DaeUWKDR.js:48 Warning: WeatherAPI key not found. Set VITE_OPENWEATHER_API_KEY environment variable.
+(anonymous) @ index-DaeUWKDR.js:48
+index-DaeUWKDR.js:128 SW registered:  ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://weathermines.vercel.app/', …}
+(index):1 Access to fetch at 'https://api.weatherapi.com/v1/forecast.json?key=&q=31.5304062,74.4676723&days=5&aqi=yes&alerts=no' from origin 'https://weathermines.vercel.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+traffic.js:1  GET https://api.weatherapi.com/v1/forecast.json?key=&q=31.5304062,74.4676723&days=5&aqi=yes&alerts=no net::ERR_FAILED 403 (Forbidden)
+(anonymous) @ traffic.js:1
+fetch @ traffic.js:1
+(anonymous) @ requests.js:1
+l1 @ index-DaeUWKDR.js:48
+i1 @ index-DaeUWKDR.js:48
+i @ index-DaeUWKDR.js:48
+x @ index-DaeUWKDR.js:48
+start @ index-DaeUWKDR.js:48
+fetch @ index-DaeUWKDR.js:48
+fo @ index-DaeUWKDR.js:48
+setOptions @ index-DaeUWKDR.js:48
+(anonymous) @ index-DaeUWKDR.js:48
+Ts @ index-DaeUWKDR.js:40
+yr @ index-DaeUWKDR.js:40
+(anonymous) @ index-DaeUWKDR.js:40
+k @ index-DaeUWKDR.js:25
+D @ index-DaeUWKDR.js:25
+index-DaeUWKDR.js:48 Error fetching weather data: TypeError: Failed to fetch
+    at traffic.js:1:1473
+    at new Promise (<anonymous>)
+    at fetch (traffic.js:1:1450)
+    at requests.js:1:3725
+    at l1 (index-DaeUWKDR.js:48:42110)
+    at i1 (index-DaeUWKDR.js:48:40144)
+    at Object.i [as fn] (index-DaeUWKDR.js:48:14345)
+    at x (index-DaeUWKDR.js:48:9957)
+    at Object.start (index-DaeUWKDR.js:48:10416)
+    at df.fetch (index-DaeUWKDR.js:48:15674)
+overrideMethod @ hook.js:608
+l1 @ index-DaeUWKDR.js:48
+await in l1
+i1 @ index-DaeUWKDR.js:48
+i @ index-DaeUWKDR.js:48
+x @ index-DaeUWKDR.js:48
+start @ index-DaeUWKDR.js:48
+fetch @ index-DaeUWKDR.js:48
+fo @ index-DaeUWKDR.js:48
+setOptions @ index-DaeUWKDR.js:48
+(anonymous) @ index-DaeUWKDR.js:48
+Ts @ index-DaeUWKDR.js:40
+yr @ index-DaeUWKDR.js:40
+(anonymous) @ index-DaeUWKDR.js:40
+k @ index-DaeUWKDR.js:25
+D @ index-DaeUWKDR.js:25
+(index):1 Access to fetch at 'https://api.weatherapi.com/v1/forecast.json?key=&q=31.5304062,74.4676723&days=5&aqi=yes&alerts=no' from origin 'https://weathermines.vercel.app' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+traffic.js:1  GET https://api.weatherapi.com/v1/forecast.json?key=&q=31.5304062,74.4676723&days=5&aqi=yes&alerts=no net::ERR_FAILED 403 (Forbidden)
+(anonymous) @ traffic.js:1
+fetch @ traffic.js:1
+(anonymous) @ requests.js:1
+l1 @ index-DaeUWKDR.js:48
+i1 @ index-DaeUWKDR.js:48
+i @ index-DaeUWKDR.js:48
+x @ index-DaeUWKDR.js:48
+(anonymous) @ index-DaeUWKDR.js:48
+Promise.then
+(anonymous) @ index-DaeUWKDR.js:48
+Promise.catch
+x @ index-DaeUWKDR.js:48
+start @ index-DaeUWKDR.js:48
+fetch @ index-DaeUWKDR.js:48
+fo @ index-DaeUWKDR.js:48
+setOptions @ index-DaeUWKDR.js:48
+(anonymous) @ index-DaeUWKDR.js:48
+Ts @ index-DaeUWKDR.js:40
+yr @ index-DaeUWKDR.js:40
+(anonymous) @ index-DaeUWKDR.js:40
+k @ index-DaeUWKDR.js:25
+D @ index-DaeUWKDR.js:25
+index-DaeUWKDR.js:48 Error fetching weather data: TypeError: Failed to fetch
+    at traffic.js:1:1473
+    at new Promise (<anonymous>)
+    at fetch (traffic.js:1:1450)
+    at requests.js:1:3725
+    at l1 (index-DaeUWKDR.js:48:42110)
+    at i1 (index-DaeUWKDR.js:48:40144)
+    at Object.i [as fn] (index-DaeUWKDR.js:48:14345)
+    at x (index-DaeUWKDR.js:48:9957)
+    at index-DaeUWKDR.js:48:10295
+overrideMethod @ hook.js:608
+l1 @ index-DaeUWKDR.js:48
+await in l1
+i1 @ index-DaeUWKDR.js:48
+i @ index-DaeUWKDR.js:48
+x @ index-DaeUWKDR.js:48
+(anonymous) @ index-DaeUWKDR.js:48
+Promise.then
+(anonymous) @ index-DaeUWKDR.js:48
+Promise.catch
+x @ index-DaeUWKDR.js:48
+start @ index-DaeUWKDR.js:48
+fetch @ index-DaeUWKDR.js:48
+fo @ index-DaeUWKDR.js:48
+setOptions @ index-DaeUWKDR.js:48
+(anonymous) @ index-DaeUWKDR.js:48
+Ts @ index-DaeUWKDR.js:40
+yr @ index-DaeUWKDR.js:40
+(anonymous) @ index-DaeUWKDR.js:40
+k @ index-DaeUWKDR.js:25
+D @ index-DaeUWKDR.js:25
