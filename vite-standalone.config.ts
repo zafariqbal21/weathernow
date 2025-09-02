@@ -15,10 +15,16 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
   server: {
     port: 5000,
     host: "0.0.0.0",
   },
   envDir: path.resolve(import.meta.dirname, "client"),
+  base: "/",
 });
