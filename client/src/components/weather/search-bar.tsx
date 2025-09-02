@@ -31,16 +31,8 @@ export function SearchBar({ onLocationSelect, onCurrentLocation }: SearchBarProp
     return () => clearTimeout(timer);
   }, [query]);
 
-  const { data: locations, isLoading } = useQuery({
+  const { data: locations = [], isLoading } = useQuery<Location[]>({
     queryKey: ['/api/locations', debouncedQuery],
-    queryFn: async () => {
-      if (!debouncedQuery.trim()) return [];
-      const response = await fetch(`/api/locations?q=${encodeURIComponent(debouncedQuery)}`);
-      if (!response.ok) {
-        throw new Error('Failed to search locations');
-      }
-      return response.json() as Promise<Location[]>;
-    },
     enabled: debouncedQuery.length > 2,
   });
 
