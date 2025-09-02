@@ -55,7 +55,7 @@ export default function Weather() {
     error,
     refetch,
   } = useQuery<WeatherData>({
-    queryKey: ['/api/weather', coordinates?.lat, coordinates?.lon],
+    queryKey: [`/api/weather?lat=${coordinates?.lat}&lon=${coordinates?.lon}`],
     enabled: !!coordinates,
   });
 
